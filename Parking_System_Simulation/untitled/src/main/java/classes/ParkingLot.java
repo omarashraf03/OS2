@@ -1,15 +1,23 @@
 package classes;
-
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class ParkingLot {
-    private final Semaphore availableSpots;
-    private int currentlyParked = 0;
-    private int totalServed = 0;
-    private final ReentrantLock lock = new ReentrantLock();
+    private final Semaphore spots;
+    private int currentlyParked = 0; // Simple integer counter
 
     public ParkingLot(int totalSpots) {
-        this.availableSpots = new Semaphore(totalSpots);
+        this.spots = new Semaphore(totalSpots, true);
+    }
+
+    public synchronized void parkCar(int carId) throws InterruptedException {
+        spots.acquire(); // Acquire a permit, blocking if no permits are available
+        currentlyParked++; // Increment the local counter
+        System.out.println("Car " + carId + " parked. (Parking Status: " + currentlyParked + " spots occupied)");
+    }
+
+    public synchronized void leaveCar(int carId) {
+        spots.release(); // Release a permit, allowing another car to park
+        currentlyParked--; // Decrement the local counter
+        System.out.println("Car " + carId + " left. (Parking Status: " + currentlyParked + " spots occupied)");
     }
 }
