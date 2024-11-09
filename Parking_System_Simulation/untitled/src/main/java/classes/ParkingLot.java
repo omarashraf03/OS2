@@ -2,29 +2,41 @@ package classes;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-public class ParkingLot {
+class ParkingLot {
     private final Semaphore spots;
-    private int TotalParked = 0; //counter
+    private int totalParked = 0; 
 
     public ParkingLot(int totalSpots) {
         this.spots = new Semaphore(totalSpots, true);
     }
 
-    public synchronized void parkCar(Car car) throws InterruptedException {
-        if (spots.tryAcquire(car.arrivalTime(), TimeUnit.SECONDS)) {
-            System.out.println("Car " + car.getId() + " from Gate " + car.GateId() + " parked.");
-            TotalParked++;
-        } else {
-            System.out.println("Car " + car.getId() + " from Gate " + car.GateId() + " is waiting.");
-        }    
+    public synchronized void enter(Car car) throws InterruptedException {
+        long waitStartTime = System.currentTimeMillis(); 
+        System.out.println("Car " + car.getId() + " from Gate " + car.GateId() + "arrived at time " + car.arrivalTime());
+        if (!spots.tryAcquire()) {
+            System.out.println("Car " + car.getId() + " from Gate " + car.GateId() + " waiting for a spot.");
+            spots.acquire(); // Wait until a spot is available
+            long waitedTime = (System.currentTimeMillis() - waitStartTime) / 1000; // Calculate wait time in seconds
+            System.out.println("Car " + car.getId() + " from Gate " + car.GateId() + " parked after waiting for " + waitedTime + " units of time. parked. (Parking Status: " + (spots.availablePermits()) + " spots occupied)");
+
+        }
+        else{
+            System.out.println("Car " + car.getId() + " from Gate " + car.GateId() + " parked. (Parking Status: " + (spots.availablePermits()) + " spots occupied)");
+        }
+        totalParked++;
+        Thread.sleep(car.getParkDuration() * 1000); 
+        leaveCar(car);
     }
 
-    public synchronized void leaveCar(Car car ) {
-        spots.release(); // Release a permit, allowing another car to park
-        TotalParked--; // Decrement the local counter
-        System.out.println("Car " + car.getId() + " from Gate " + car.GateId() + " left after " + car.getParkDuration() + " units.");
+    
+
+    public synchronized void leaveCar(Car car) {
+        spots.release();
+        totalParked--;
+        System.out.println("Car " + car.getId() + " from Gate " + car.GateId() + " left after " + car.getParkDuration() + " units of time. (Parking Status: " + (spots.availablePermits()) + " spots occupied)");
     }
+
     public int getTotalCarsServed() {
-        return TotalParked;
+        return totalParked;
     }
 }
