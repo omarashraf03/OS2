@@ -17,7 +17,14 @@ public class Gate extends Thread {
     public int getCarsServed() {
         return carsServed;
     }
+    public int getGateId(){
+        return gateId;
+    }
+
+
 
     @Override
-    public void run() {}
+    public void run() {
+        
+    }
 }
