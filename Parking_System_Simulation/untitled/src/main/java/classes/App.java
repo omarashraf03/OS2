@@ -17,13 +17,13 @@ public class App
             // car.print();
 //            System.out.println(car.getCarID());
             car.start();
-//            try {
-////                System.out.println(car.getCarID());
-////                car.join();
-//                Thread.sleep(100);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
+            try {
+//                System.out.println(car.getCarID());
+//                car.join();
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         // Wait for each car thread to finish

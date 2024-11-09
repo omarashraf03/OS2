@@ -25,7 +25,7 @@ public class Car extends Thread{
             parkingLot.enter(this);
 
             // Simulate the time spent parked
-            Thread.sleep((+parkingDuration) * 1000);
+            Thread.sleep((+parkingDuration) * 1100);
 
             parkingLot.leaveCar(this);
             // Thread.sleep(parkingDuration * 1000);
