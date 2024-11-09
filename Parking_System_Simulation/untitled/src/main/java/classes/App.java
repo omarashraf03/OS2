@@ -10,18 +10,28 @@ public class App
         System.out.println("______________________________________________________\n");
 
         ParkingLot parkingLot = new ParkingLot(4);
-        Parser parser = new Parser("untitled/InputFile.txt");
+
+        Parser parser = new Parser("/Users/mac/Desktop/Projects/OS_._2/OS2/Parking_System_Simulation/untitled/InputFile.txt");
         ArrayList<Car> cars = parser.parse(parkingLot);
         for (Car car : cars) {
             // car.print();
+//            System.out.println(car.getCarID());
             car.start();
+            try {
+//                System.out.println(car.getCarID());
+//                car.join();
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         // Wait for each car thread to finish
         for (Car car : cars) {
             try {
+//                System.out.println(car.getCarID());
                 car.join();
-                Thread.sleep(1000);
+//                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
