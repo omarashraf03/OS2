@@ -17,26 +17,35 @@ class ParkingLot {
 
     public void enter(Car car) throws InterruptedException {
         long waitStartTime = System.currentTimeMillis();
-        System.out.println("Car " + car.getCarID() + " from Gate " + car.getGateID() + " arrived at time " + car.getArriveTime());
-
-        if (spots.tryAcquire()) {
-            System.out.print("Car " + car.getCarID() + " from Gate " + car.getGateID() + " parked immediately.");
-        } else {
-            System.out.println("Car " + car.getCarID() + " from Gate " + car.getGateID() + " waiting for a spot.");
-            spots.acquire();  // Wait until a spot is available
-            long waitedTime = (System.currentTimeMillis() - waitStartTime) / 1000;
-            System.out.print("Car " + car.getCarID() + " from Gate " + car.getGateID() + " parked after waiting " + waitedTime + " seconds.");
+        synchronized (System.out) {
+            System.out.println("Car " + car.getCarID() + " from Gate " + car.getGateID() + " arrived at time " + car.getArriveTime());
         }
 
-        totalParked.incrementAndGet();
+        if (spots.tryAcquire()) {
+            synchronized (System.out) {
+                System.out.println("Car " + car.getCarID() + " from Gate " + car.getGateID() + " (Parking Status: " + totalParked.incrementAndGet() + " spots occupied.)");
+            }
+        } else {
+            synchronized (System.out) {
+                System.out.println("Car " + car.getCarID() + " from Gate " + car.getGateID() + " waiting for a spot.");
+            }
+            spots.acquire();
+            long waitedTime = (System.currentTimeMillis() - waitStartTime) / 1000;
+            waitedTime++;
+            synchronized (System.out) {
+                System.out.println("Car " + car.getCarID() + " from Gate " + car.getGateID() + " parked after waiting " + waitedTime + " seconds.  (Parking Status: " + totalParked.incrementAndGet() + " spots occupied.)");
+            }
+        }
+
         totalServed.incrementAndGet();
-        System.out.println("  Parking Status: " + totalParked.get() + " spots occupied.");
     }
 
     public void leaveCar(Car car) {
         spots.release();
-        totalParked.decrementAndGet();
-        System.out.println("Car " + car.getCarID() + " from Gate " + car.getGateID() + " left after " + car.getParkDuration() + " seconds. (Parking Status: " + totalParked.get() + " spots occupied)");
+        int occupiedSpots = totalParked.decrementAndGet();
+        synchronized (System.out) {
+            System.out.println("Car " + car.getCarID() + " from Gate " + car.getGateID() + " left after " + car.getParkDuration() + " seconds. (Parking Status: " + occupiedSpots + " spots occupied)");
+        }
     }
 
     public int getTotalCarsParked() {
